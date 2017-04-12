@@ -21,7 +21,7 @@ def _key_matches(key, endings, inkey, exclude):
 
 
 def join_paths_with_rootdir(configdict, default_rootdir,
-        endings=['_dir', '_file'], inkey=['_dir'], exclude=['rootdir']):
+        endings=['dir', 'file'], inkey=['_dir'], exclude=['rootdir']):
     """Join all relative paths in configdict with rootdir
 
     Parameters
