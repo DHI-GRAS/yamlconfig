@@ -1,20 +1,27 @@
 import os.path
+import logging
 
 import ruamel.yaml
 
+logger = logging.getLogger(__name__)
 
-def _key_matches(key, endings, inkey):
+
+def _key_matches(key, endings, inkey, exclude):
+    if key in exclude:
+        return False
     for ending in endings:
         if key.endswith(ending):
+            logger.debug('Key \'{}\' ends with \'{}\'.'.format(key, ending))
             return True
     for substr in inkey:
         if substr in key:
+            logger.debug('Found \'{}\' in key \'{}\'.'.format(substr, key))
             return True
     return False
 
 
 def join_paths_with_rootdir(configdict, default_rootdir,
-        endings=['dir', 'file'], inkey=['_dir', '_file']):
+        endings=['_dir', '_file'], inkey=['_dir'], exclude=['rootdir']):
     """Join all relative paths in configdict with rootdir
 
     Parameters
@@ -29,10 +36,13 @@ def join_paths_with_rootdir(configdict, default_rootdir,
         e.g. _dir for download_dir
     inkey : list of str
         substrings to match
+    exclude : list of str
+        exclude these keys
     """
     rootdir = configdict.get('rootdir', default_rootdir)
+    logger.debug('Rootdir is \'{}\'.'.format(rootdir))
     for key in configdict:
-        if _key_matches(key, endings, inkey):
+        if _key_matches(key, endings, inkey, exclude):
             configdict[key] = os.path.abspath(os.path.join(rootdir, configdict[key]))
     return configdict
 
