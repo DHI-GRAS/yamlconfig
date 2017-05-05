@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='yamlconfig',
-    version='0.2',
+    version='1.0',
     description='YAML config file parsing',
     author='Jonas Solvsteen',
     author_email='josl@dhi-gras.com',

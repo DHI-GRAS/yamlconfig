@@ -1,0 +1,5 @@
+rootdir: null
+absolute_dir: C:\Temp\bar
+expected_absolute: C:\Temp\bar
+no_diir: baz
+expected_no_diir: baz
