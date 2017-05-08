@@ -1,6 +1,5 @@
 import os.path
 import logging
-import copy
 from collections import OrderedDict
 
 import ruamel.yaml
@@ -134,31 +133,60 @@ def parse_merge_linked_files(configfiles, **kwargs):
     return configdict
 
 
-def update_recursive(template, configdict, delete_extra=False, inplace=False):
-    """Update template with configdict, recursively
+def update_recursive(template, subset,
+        ignore_notintemplate=True, delete_notinsubset=False):
+    """Update template with subset, recursively, IN-PLACE!
 
     Parameters
     ----------
-    template : dict or _ruamel_type
+    template : mappable or _ruamel_type
         template
-    configdict : dict or dict-like
-        config dict
-    delete_extra : bool
-        skip keys that are not in configdict
-    inplace : bool
-        whether to update template in-place (or create copy)
+        will be changed in-place!
+    subset : mappable
+        config dict, subset of template
+    ignore_notintemplate : bool
+        do not add keys that are not in template
+    delete_notinsubset : bool
+        delete keys from template that are not in subset
+        i.e. the output will contain only the intersection between
+        template and subset or only subset (if ignore_notintemplate is set)
     """
-    if inplace:
-        newcollection = template
-    else:
-        newcollection = copy.deepcopy(template)
-    for key in configdict:
-        if isinstance(newcollection[key], _dict_types):
-            newcollection[key] = update_recursive(newcollection[key], configdict[key])
-        if delete_extra and key not in newcollection:
-            del newcollection[key]
-        newcollection[key] = configdict[key]
-    return newcollection
+    if not isinstance(template, _dict_types) or not isinstance(subset, _dict_types):
+        return subset
+
+    for key in subset:
+        if key not in template and ignore_notintemplate:
+            continue
+        elif key in template and isinstance(template[key], _dict_types):
+            update_recursive(
+                    template=template[key],
+                    subset=subset[key],
+                    ignore_notintemplate=ignore_notintemplate,
+                    delete_notinsubset=delete_notinsubset)
+        else:
+            template[key] = subset[key]
+    if delete_notinsubset:
+        delete_keys_recursive(superset=template, subset=subset)
+
+
+def delete_keys_recursive(superset, subset):
+    """Delete the keys in superset that are not in subset
+
+    I.e. reduce superset to its intersection with subset based on keys
+
+    Parameters
+    ----------
+    superset : mappable
+        superset of subset
+        will be changed in-place!
+    subset : mappable
+        subset of superset
+    """
+    for key in list(superset):
+        if isinstance(superset[key], _dict_types):
+            delete_keys_recursive(superset[key], subset[key])
+        elif key not in subset:
+            del superset[key]
 
 
 def save_to_yaml(configdict, yamlfile):

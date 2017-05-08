@@ -1,0 +1,5 @@
+level1:
+    level2:
+        inboth1: samevalue
+        inboth2: subsetvalue
+        onlytemplate: templatevalue

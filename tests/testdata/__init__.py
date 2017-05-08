@@ -10,6 +10,10 @@ def get_data_files():
     else:
         pattern = os.path.join(datadir, 'unix', '*.yaml')
     files = glob.glob(pattern)
+
+    pattern_noplatform = os.path.join(datadir, '*.yaml')
+    files += glob.glob(pattern_noplatform)
+
     filesdict = {}
     for fn in files:
         key = os.path.splitext(os.path.basename(fn))[0]
