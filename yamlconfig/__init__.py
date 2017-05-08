@@ -183,10 +183,12 @@ def delete_keys_recursive(superset, subset):
         subset of superset
     """
     for key in list(superset):
-        if isinstance(superset[key], _dict_types):
-            delete_keys_recursive(superset[key], subset[key])
-        elif key not in subset:
+        if key not in subset:
             del superset[key]
+        elif isinstance(superset[key], _dict_types):
+            delete_keys_recursive(superset[key], subset[key])
+        else:
+            continue
 
 
 def save_to_yaml(configdict, yamlfile):
