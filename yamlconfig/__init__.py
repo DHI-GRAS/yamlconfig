@@ -191,7 +191,7 @@ def delete_keys_recursive(superset, subset):
             continue
 
 
-def save_to_yaml(configdict, yamlfile):
+def save_to_yaml(configdict, yamlfile, **kwargs):
     """Save configdict to yaml
 
     Parameters
@@ -201,10 +201,12 @@ def save_to_yaml(configdict, yamlfile):
         if not already _ruamel_type, will be converted with defaults template
     yamlfile : str
         path to save configdict to
+    **kwargs : additional keyword arguments
+        passed to ruamel.yaml.round_trip_dump
     """
     remove_rootdir_from_paths(configdict)
     with open(yamlfile, 'w') as fout:
-        ruamel.yaml.round_trip_dump(configdict, fout, default_flow_style=True, top_level_colon_align=True)
+        ruamel.yaml.round_trip_dump(configdict, fout, default_flow_style=True, **kwargs)
 
 
 def ordered_to_unordered(somedict):
