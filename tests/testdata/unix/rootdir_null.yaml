@@ -1,0 +1,5 @@
+rootdir: null
+absolute_dir: /tmp/bar
+expected_absolute: /tmp/bar
+no_diir: baz
+expected_no_diir: baz

@@ -1,0 +1,7 @@
+rootdir: /tmp
+relative_dir: foo
+expected_relative: /tmp/foo
+absolute_dir: /tmp/bar
+expected_absolute: /tmp/bar
+no_diir: baz
+expected_no_diir: baz
