@@ -1,4 +1,5 @@
 import os.path
+import copy
 import logging
 from collections import OrderedDict
 
@@ -105,13 +106,23 @@ def parse_config_file(configfile, join_rootdir=True, merge_linked_files=True):
 
     if join_rootdir:
         join_paths_with_rootdir(configdict, default_rootdir=os.path.dirname(configfile))
+    rootdir = configdict.get('rootdir', None)
 
-    if merge_linked_files:
-        other_configfiles = configdict.pop('config_files', [])
-        for cf in other_configfiles:
-            other_configdict = parse_config_file(cf)
+    other_configfiles = configdict.pop('config_files', [])
+    if merge_linked_files and other_configfiles:
+        configdict_rules = copy.deepcopy(configdict)
+        for cf in other_configfiles[::-1]:
+            if rootdir is not None:
+                cfpath = os.path.join(rootdir, cf)
+            else:
+                cfpath = cf
+            other_configdict = parse_config_file(
+                    cfpath, join_rootdir=join_rootdir, merged_linked_files=merge_linked_files)
             other_configdict.pop('rootdir', None)
             configdict.update(other_configdict)
+
+        # make sure original config dict rules
+        configdict.update(configdict_rules)
 
     return configdict
 
@@ -127,7 +138,7 @@ def parse_merge_linked_files(configfiles, **kwargs):
         passed to parse_config_file
     """
     configdict = {}
-    for cfpath in configfiles:
+    for cfpath in configfiles[::-1]:
         cfd = parse_config_file(cfpath, **kwargs)
         configdict.update(cfd)
     return configdict
