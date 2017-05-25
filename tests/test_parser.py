@@ -62,8 +62,9 @@ def test_update_recursive_noignore():
             subset=testconfig['subset'],
             ignore_notintemplate=False,
             delete_notinsubset=False)
-    expected = testconfig['expected_noignorenotintemplate']
-    assert to_update == expected
+    expected = yamlconfig.ordered_to_unordered(testconfig['expected_noignorenotintemplate'])
+    to_update_dict = yamlconfig.ordered_to_unordered(to_update)
+    assert to_update_dict == expected
 
 
 def test_update_recursive_ignore_delete():
