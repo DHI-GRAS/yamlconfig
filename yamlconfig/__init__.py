@@ -130,7 +130,7 @@ def parse_config_file(configfile, join_rootdir=True, merge_linked_files=True):
     return configdict
 
 
-def parse_merge_linked_files(configfiles, **kwargs):
+def parse_merge_multiple_files(configfiles, **kwargs):
     """Parse and merge multiple config files
 
     Parameters
@@ -139,9 +139,14 @@ def parse_merge_linked_files(configfiles, **kwargs):
         list of config file paths
     **kwargs : additional keyword arguments
         passed to parse_config_file
+
+    Returns
+    -------
+    dict
+        merged config dict (last file rules)
     """
     configdict = {}
-    for cfpath in configfiles[::-1]:
+    for cfpath in configfiles:
         cfd = parse_config_file(cfpath, **kwargs)
         configdict.update(cfd)
     return configdict
