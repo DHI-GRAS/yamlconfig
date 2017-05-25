@@ -106,9 +106,12 @@ def parse_config_file(configfile, join_rootdir=True, merge_linked_files=True):
 
     if join_rootdir:
         join_paths_with_rootdir(configdict, default_rootdir=os.path.dirname(configfile))
-    rootdir = configdict.get('rootdir', None)
 
+    rootdir = configdict.get('rootdir', os.path.dirname(configfile))
+
+    # pop linked files
     other_configfiles = configdict.pop('config_files', [])
+
     if merge_linked_files and other_configfiles:
         configdict_rules = copy.deepcopy(configdict)
         for cf in other_configfiles[::-1]:
@@ -117,12 +120,12 @@ def parse_config_file(configfile, join_rootdir=True, merge_linked_files=True):
             else:
                 cfpath = cf
             other_configdict = parse_config_file(
-                    cfpath, join_rootdir=join_rootdir, merged_linked_files=merge_linked_files)
+                    cfpath, join_rootdir=join_rootdir, merge_linked_files=merge_linked_files)
             other_configdict.pop('rootdir', None)
-            configdict.update(other_configdict)
+            update_recursive_plain(configdict, other_configdict)
 
         # make sure original config dict rules
-        configdict.update(configdict_rules)
+        update_recursive_plain(configdict, configdict_rules)
 
     return configdict
 
@@ -200,6 +203,12 @@ def delete_keys_recursive(superset, subset):
             delete_keys_recursive(superset[key], subset[key])
         else:
             continue
+
+
+def update_recursive_plain(template, other):
+    """Wrapper for update_recursive without magic"""
+    update_recursive(template, other,
+            ignore_notintemplate=False, delete_notinsubset=False)
 
 
 def save_to_yaml(configdict, yamlfile, **kwargs):

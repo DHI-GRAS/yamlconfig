@@ -1,0 +1,4 @@
+foo: linkingvalue
+config_files:
+    - merge_linked_linked1.yaml
+    - merge_linked_linked2.yaml
