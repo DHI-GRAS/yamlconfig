@@ -130,7 +130,7 @@ def parse_config_file(configfile, join_rootdir=True, merge_linked_files=True):
     return configdict
 
 
-def parse_merge_multiple_files(configfiles, **kwargs):
+def parse_merge_multiple(configfiles, **kwargs):
     """Parse and merge multiple config files
 
     Parameters
@@ -142,14 +142,36 @@ def parse_merge_multiple_files(configfiles, **kwargs):
 
     Returns
     -------
-    dict
+    dict-like
         merged config dict (last file rules)
     """
-    configdict = {}
-    for cfpath in configfiles:
-        cfd = parse_config_file(cfpath, **kwargs)
-        configdict.update(cfd)
+    dd = (parse_config_file(cfpath, **kwargs) for cfpath in configfiles)
+    configdict = merge_multiple(dd)
     return configdict
+
+
+def merge_multiple(configdicts):
+    """Merge multiple config dicts
+
+    Parameters
+    ----------
+    configdicts : iterable of dicts
+        config dicts to merge (can be iterator)
+
+    Returns
+    -------
+    dict-like
+        merged config dicts
+        last dict rules for values
+        first dict rules for format (if ruamel type)
+    """
+    cfd = None
+    for newcfd in configdicts:
+        if cfd is None:
+            cfd = copy.deepcopy(newcfd)
+        else:
+            update_recursive_plain(cfd, newcfd)
+    return cfd
 
 
 def update_recursive(template, subset,
