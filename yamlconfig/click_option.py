@@ -1,6 +1,6 @@
 
 
-def yaml_config_option(keys=None, multiple=False,
+def yaml_config_option(keys=None, allow_missing=False, multiple=False,
         shortflag='-c', longflag='--config', **clickkwargs):
     """Generate YAML config file option for click
 
@@ -8,6 +8,8 @@ def yaml_config_option(keys=None, multiple=False,
     ----------
     keys : list of str
         top-level keys that are required to be in YAML config
+    allow_missing : bool
+        allow for missing keys
     multiple : bool
         multiple instances of the option allowed
     shortflag, longflag : str
@@ -44,13 +46,24 @@ def yaml_config_option(keys=None, multiple=False,
                 if not isinstance(config, tuple):
                     raise ValueError('Something went wrong.')
                 config = merge_multiple(config)
+
             if keys is not None:
                 # subset config
-                try:
-                    config = {k:config[k] for k in keys}
-                except KeyError:
-                    raise ValueError('Merged config dict does not have required keys (). Got {}.'.format(set(keys), set(config)))
-            kwargs.update(config)
+                config_sub = {}
+                for k in keys:
+                    try:
+                        config_sub[k] = config[k]
+                    except KeyError:
+                        if allow_missing:
+                            continue
+                        else:
+                            raise ValueError(
+                                    'Merged config dict does not have '
+                                    'required keys (). Got {}.'.format(set(keys), set(config)))
+                kwargs.update(config_sub)
+            else:
+                kwargs.update(config)
+
             return f(*args, **kwargs)
 
         return yaml_option(wrapped)
