@@ -1,6 +1,6 @@
 
 
-def yaml_config_option(keys=None, allow_missing=False, multiple=False,
+def yaml_config_option(keys=None, allow_missing=False, multiple=True,
         shortflag='-c', longflag='--config', **clickkwargs):
     """Generate YAML config file option for click
 
