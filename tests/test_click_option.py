@@ -38,3 +38,19 @@ def test_single():
     result = runner.invoke(main, inp)
     assert result.exit_code == 0
     assert result.output == 'hello world\n'
+
+
+def test_drop_keys():
+    testfiles = testdata.get_data_files()
+    inp = ['-c', testfiles['hello_world']]
+
+    @click.command()
+    @yaml_config_option(
+            keys=['name', 'greeting'], drop_keys=['name'], multiple=False)
+    def main(**kwargs):
+        click.echo(len(kwargs))
+
+    runner = CliRunner()
+    result = runner.invoke(main, inp)
+    assert result.exit_code == 0
+    assert result.output == '1\n'
