@@ -24,8 +24,8 @@ def yaml_config_option(keys=None, allow_missing=False, multiple=True,
     """
     import functools
     import click
-    from . import merge_multiple
-    from .click_type import YAMLConfig
+    from yamlconfig import merge_multiple
+    from yamlconfig.click_type import YAMLConfig
 
     configkey = '__configkey'
 

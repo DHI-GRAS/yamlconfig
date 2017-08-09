@@ -1,8 +1,8 @@
 import click
 
-from . import parse_config_file
-from .postproc import check_required_keys
-from .postproc import RequiredKeysError
+from yamlconfig import parse_config_file
+from yamlconfig.postproc import check_required_keys
+from yamlconfig.postproc import RequiredKeysError
 
 
 class YAMLConfig(click.ParamType):
