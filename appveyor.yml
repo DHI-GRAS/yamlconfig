@@ -1,5 +1,5 @@
 version: 1.0.{build}
 install:
-- cmd: pip install -e .[test]
-build:
-  verbosity: minimal
+- cmd: >-
+    pip install pytest
+    pip install -e .[test]
