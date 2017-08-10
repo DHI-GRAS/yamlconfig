@@ -1,5 +1,5 @@
 version: 1.0.{build}
 install:
-- cmd: pip install ruamel.yaml
+- cmd: pip install -e .[test]
 build:
   verbosity: minimal
