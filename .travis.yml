@@ -2,5 +2,12 @@ language: python
 python:
   - "2.7"
   - "3.6"
-install: "pip install ruamel.yaml click"
-script: python -m pytest
+before_install:
+    pip install -U pip
+install: 
+  - pip install codecov
+  - pip install -e .[test]
+script: 
+  - coverage run --source=yamlconfig -m py.test -v
+after_success: 
+  - codecov
