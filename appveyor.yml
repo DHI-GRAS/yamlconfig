@@ -1,5 +1,9 @@
 version: 1.0.{build}
-install:
+before_build:
 - cmd: >-
+    pip install -U pip
     pip install pytest
-    pip install -e .[test]
+build_script:
+- cmd: pip install -e .[test]
+test_script:
+- cmd: python -m pytest
