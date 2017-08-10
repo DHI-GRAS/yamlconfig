@@ -1,3 +1,4 @@
+import pytest
 import click
 from click.testing import CliRunner
 
@@ -19,7 +20,7 @@ def test_multiple():
         click.echo('{greeting} {name}'.format(**kwargs))
 
     runner = CliRunner()
-    result = runner.invoke(main, inp)
+    result = runner.invoke(main, inp, catch_exceptions=False)
     assert result.exit_code == 0
     assert result.output == 'hello world\n'
 
@@ -35,7 +36,7 @@ def test_single():
         click.echo('{greeting} {name}'.format(**kwargs))
 
     runner = CliRunner()
-    result = runner.invoke(main, inp)
+    result = runner.invoke(main, inp, catch_exceptions=False)
     assert result.exit_code == 0
     assert result.output == 'hello world\n'
 
@@ -46,11 +47,44 @@ def test_drop_keys():
 
     @click.command()
     @yaml_config_option(
-            keys=['name', 'greeting'], drop_keys=['name'], multiple=False)
+            keys=['name', 'greeting'], drop_keys=['name'])
     def main(**kwargs):
         click.echo(len(kwargs))
 
     runner = CliRunner()
-    result = runner.invoke(main, inp)
+    result = runner.invoke(main, inp, catch_exceptions=False)
     assert result.exit_code == 0
     assert result.output == '1\n'
+
+
+def test_missing():
+
+    testfiles = testdata.get_data_files()
+    inp = ['-c', testfiles['hello_world']]
+
+    @click.command()
+    @yaml_config_option(
+            keys=['flowers_gone'], allow_missing=False)
+    def main(**kwargs):
+        click.echo(len(kwargs))
+
+    runner = CliRunner()
+    with pytest.raises(ValueError):
+        result = runner.invoke(main, inp, catch_exceptions=False)
+        assert result.exit_code == -1
+
+
+def test_keys_with_defaults():
+    testfiles = testdata.get_data_files()
+    inp = ['-c', testfiles['hello']]
+
+    @click.command()
+    @yaml_config_option(
+            keys=[('name', 'tough guy'), 'greeting'])
+    def main(**kwargs):
+        click.echo('{greeting} {name}'.format(**kwargs))
+
+    runner = CliRunner()
+    result = runner.invoke(main, inp, catch_exceptions=False)
+    assert result.exit_code == 0
+    assert result.output == 'hello tough guy\n'
