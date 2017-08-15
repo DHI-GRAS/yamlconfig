@@ -5,82 +5,12 @@ from collections import OrderedDict
 
 import ruamel.yaml
 
+from yamlconfig import rootdir_logic
+
 logger = logging.getLogger(__name__)
 
 _ruamel_type = ruamel.yaml.comments.CommentedMap
 _dict_types = (dict, OrderedDict, _ruamel_type)
-
-
-def set_rootdir(configdict, config_file):
-    """Set rootdir in configdict"""
-    if 'rootdir' not in configdict or not configdict['rootdir']:
-        configdict['rootdir'] = os.path.dirname(config_file)
-
-
-def _key_matches(key, endings, inkey, exclude):
-    if key in exclude:
-        return False
-    for ending in endings:
-        if key.endswith(ending):
-            logger.debug('Key \'{}\' ends with \'{}\'.'.format(key, ending))
-            return True
-    for substr in inkey:
-        if substr in key:
-            logger.debug('Found \'{}\' in key \'{}\'.'.format(substr, key))
-            return True
-    return False
-
-
-def join_paths_with_rootdir(configdict, default_rootdir=None,
-        endings=['dir', 'file', 'File'], inkey=['_dir'], exclude=['rootdir']):
-    """Join all relative paths in configdict with rootdir
-
-    Parameters
-    ----------
-    configdict : dict
-        config dictionary
-    default_rootdir : str
-        default rootdir
-        will be used if `rootdir` not in configdict
-    endings : list of str
-        key endings to match
-        e.g. _dir for download_dir
-    inkey : list of str
-        substrings to match
-    exclude : list of str
-        exclude these keys
-    """
-    rootdir = configdict.get('rootdir', default_rootdir)
-    logger.debug('Rootdir is \'{}\'.'.format(rootdir))
-    if rootdir is None:
-        return configdict
-    for key in configdict:
-        if isinstance(configdict[key], _dict_types):
-            configdict[key] = join_paths_with_rootdir(configdict[key])
-        elif _key_matches(key, endings, inkey, exclude):
-            if configdict[key] is not None:
-                try:
-                    configdict[key] = os.path.abspath(os.path.join(rootdir, configdict[key]))
-                except (TypeError, ValueError):
-                    pass
-    return configdict
-
-
-def remove_rootdir_from_paths(configdict):
-    """Reverse join_paths_with_rootdir"""
-    try:
-        rootdir = configdict['rootdir']
-    except KeyError:
-        return
-    if not rootdir:
-        return
-    for key in configdict:
-        if isinstance(configdict[key], _dict_types):
-            remove_rootdir_from_paths(configdict[key])
-        elif key.endswith('File') and configdict[key]:
-            relpath = os.path.relpath(configdict[key], rootdir)
-            if not relpath.startswith('.'):
-                configdict[key] = relpath
 
 
 def plain_parse_yaml(configfile, round_trip=False):
@@ -100,7 +30,10 @@ def plain_parse_yaml(configfile, round_trip=False):
             return ruamel.yaml.safe_load(fin)
 
 
-def parse_config_file(configfile, join_rootdir=True, merge_linked_files=True, round_trip=False):
+def parse_config_file(
+        configfile, join_rootdir=False,
+        merge_linked_files=True, round_trip=False,
+        rootdir_kwargs={}):
     """Parse YAML config file
 
     Parameters
@@ -114,11 +47,15 @@ def parse_config_file(configfile, join_rootdir=True, merge_linked_files=True, ro
         merge other config files listed under `config_files`
     round_trip : bool
         use round-trip loader (preserves comments and spacing)
+    rootdir_kwargs : dict
+        keyword arguments passed
+        to join_paths_with_rootdir
     """
     configdict = plain_parse_yaml(configfile, round_trip=round_trip)
 
-    if join_rootdir:
-        join_paths_with_rootdir(configdict, default_rootdir=os.path.dirname(configfile))
+    if join_rootdir or rootdir_kwargs:
+        rootdir_logic.join_paths_with_rootdir(
+                configdict, default_rootdir=os.path.dirname(configfile), **rootdir_kwargs)
 
     rootdir = configdict.get('rootdir', os.path.dirname(configfile))
 
@@ -133,8 +70,11 @@ def parse_config_file(configfile, join_rootdir=True, merge_linked_files=True, ro
             else:
                 cfpath = cf
             other_configdict = parse_config_file(
-                    cfpath, join_rootdir=join_rootdir,
-                    merge_linked_files=merge_linked_files, round_trip=round_trip)
+                    cfpath,
+                    join_rootdir=join_rootdir,
+                    merge_linked_files=merge_linked_files,
+                    round_trip=round_trip,
+                    rootdir_kwargs=rootdir_kwargs)
             other_configdict.pop('rootdir', None)
             update_recursive_plain(configdict, other_configdict)
 
@@ -265,7 +205,7 @@ def save_to_yaml(configdict, yamlfile, **kwargs):
     **kwargs : additional keyword arguments
         passed to ruamel.yaml.round_trip_dump
     """
-    remove_rootdir_from_paths(configdict)
+    rootdir_logic.remove_rootdir_from_paths(configdict)
     with open(yamlfile, 'w') as fout:
         ruamel.yaml.round_trip_dump(configdict, fout, default_flow_style=True, **kwargs)
 

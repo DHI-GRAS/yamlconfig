@@ -8,7 +8,7 @@ import testdata
 def test_parse_config_file():
     testfiles = testdata.get_data_files()
     yamlfile = testfiles['relative_paths']
-    config = yamlconfig.parse_config_file(yamlfile)
+    config = yamlconfig.parse_config_file(yamlfile, join_rootdir=True)
     assert config['relative_dir'] == config['expected_relative']
     assert config['absolute_dir'] == config['expected_absolute']
     assert config['no_diir'] == config['expected_no_diir']
@@ -17,7 +17,7 @@ def test_parse_config_file():
 def test_rootdir_null():
     testfiles = testdata.get_data_files()
     yamlfile = testfiles['rootdir_null']
-    config = yamlconfig.parse_config_file(yamlfile)
+    config = yamlconfig.parse_config_file(yamlfile, join_rootdir=True)
     assert config['absolute_dir'] == config['expected_absolute']
     assert config['no_diir'] == config['expected_no_diir']
 

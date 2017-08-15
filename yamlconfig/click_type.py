@@ -9,7 +9,7 @@ class YAMLConfig(click.ParamType):
 
     name = 'yamlconfig'
 
-    def __init__(self, required_keys=None, squeeze=False):
+    def __init__(self, required_keys=None, squeeze=False, parse_kwargs={}):
         """YAML config file to dict
 
         Parameters
@@ -19,13 +19,16 @@ class YAMLConfig(click.ParamType):
             or the squeezed level
         squeeze : bool
             squeeze single-key top level from config dict
+        parse_kwargs : dict
+            keyword arguments passed to yamlconfig.parse_config_file
         """
         self.required_keys = required_keys
         self.squeeze = squeeze
+        self.parse_kwargs = parse_kwargs
 
     def convert(self, value, param, ctx):
         try:
-            configkw = parse_config_file(value)
+            configkw = parse_config_file(value, **self.parse_kwargs)
         except IOError as exc:
             self.fail(str(exc), param, ctx)
         except Exception as exc:

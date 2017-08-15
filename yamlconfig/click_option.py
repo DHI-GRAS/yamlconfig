@@ -1,7 +1,9 @@
 
 
-def yaml_config_option(keys=None, allow_missing=False, multiple=True,
-        drop_keys=None, shortflag='-c', longflag='--config', **clickkwargs):
+def yaml_config_option(
+        keys=None, allow_missing=False, multiple=True,
+        drop_keys=None, parse_kwargs={},
+        shortflag='-c', longflag='--config', **clickkwargs):
     """Generate YAML config file option for click
 
     Parameters
@@ -19,6 +21,8 @@ def yaml_config_option(keys=None, allow_missing=False, multiple=True,
         drop keys from result
     shortflag, longflag : str
         short and long option flags
+    parse_kwargs : dict, optional
+        keyword arguments passed to yamlconfig.parse_config_file
     **clickkwargs : additional keyword arguments
         passed to click.option
         e.g. `required` or `help`
@@ -34,7 +38,7 @@ def yaml_config_option(keys=None, allow_missing=False, multiple=True,
 
     configkey = '__configkey'
 
-    yamltype = YAMLConfig()
+    yamltype = YAMLConfig(parse_kwargs=parse_kwargs)
 
     kw = dict(required=True, help='Config YAML file')
     kw.update(clickkwargs)
