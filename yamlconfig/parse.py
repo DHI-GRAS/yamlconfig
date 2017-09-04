@@ -192,7 +192,9 @@ def update_recursive_plain(template, other):
             ignore_notintemplate=False, delete_notinsubset=False)
 
 
-def save_to_yaml(configdict, yamlfile, **kwargs):
+def save_to_yaml(
+        configdict, yamlfile, round_trip=True,
+        default_flow_style=True, **kwargs):
     """Save configdict to yaml
 
     Parameters
@@ -205,9 +207,13 @@ def save_to_yaml(configdict, yamlfile, **kwargs):
     **kwargs : additional keyword arguments
         passed to ruamel.yaml.round_trip_dump
     """
+    kwargs.update(default_flow_style=default_flow_style)
     rootdir_logic.remove_rootdir_from_paths(configdict)
     with open(yamlfile, 'w') as fout:
-        ruamel.yaml.round_trip_dump(configdict, fout, default_flow_style=True, **kwargs)
+        if round_trip:
+            ruamel.yaml.round_trip_dump(configdict, fout, **kwargs)
+        else:
+            ruamel.yaml.safe_dump(configdict, fout, **kwargs)
 
 
 def ordered_to_unordered(d):
