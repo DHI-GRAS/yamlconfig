@@ -1,8 +1,13 @@
+CONFIGKEY = '__configkey'
+
+OPTION_DEFAULTS = dict(
+        required=True,
+        help='Config YAML file')
 
 
 def yaml_config_option(
         keys=None, allow_missing=False, multiple=True,
-        drop_keys=None, parse_kwargs={},
+        drop_keys=None, join_rootdir=False, parse_kwargs={},
         shortflag='-c', longflag='--config', **clickkwargs):
     """Generate YAML config file option for click
 
@@ -21,6 +26,8 @@ def yaml_config_option(
         drop keys from result
     shortflag, longflag : str
         short and long option flags
+    join_rootdir : bool
+        join paths with rootdir
     parse_kwargs : dict, optional
         keyword arguments passed to yamlconfig.parse_config_file
     **clickkwargs : additional keyword arguments
@@ -36,21 +43,22 @@ def yaml_config_option(
     from yamlconfig import merge_multiple
     from yamlconfig.click_type import YAMLConfig
 
-    configkey = '__configkey'
+    if 'join_rootdir' not in parse_kwargs:
+        parse_kwargs['join_rootdir'] = join_rootdir
 
     yamltype = YAMLConfig(parse_kwargs=parse_kwargs)
 
-    kw = dict(required=True, help='Config YAML file')
+    kw = OPTION_DEFAULTS.copy()
     kw.update(clickkwargs)
     yaml_option = click.option(
-            shortflag, longflag, configkey,
+            shortflag, longflag, CONFIGKEY,
             multiple=multiple, type=yamltype, **kw)
 
     def wrap_maker(f):
 
         @functools.wraps(f)
         def wrapped(*args, **kwargs):
-            config = kwargs.pop(configkey)
+            config = kwargs.pop(CONFIGKEY)
             if multiple:
                 if not isinstance(config, tuple):
                     raise ValueError('Something went wrong.')

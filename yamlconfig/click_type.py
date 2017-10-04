@@ -9,7 +9,7 @@ class YAMLConfig(click.ParamType):
 
     name = 'yamlconfig'
 
-    def __init__(self, required_keys=None, squeeze=False, parse_kwargs={}):
+    def __init__(self, required_keys=None, squeeze=False, join_rootdir=False, parse_kwargs={}):
         """YAML config file to dict
 
         Parameters
@@ -19,11 +19,15 @@ class YAMLConfig(click.ParamType):
             or the squeezed level
         squeeze : bool
             squeeze single-key top level from config dict
+        join_rootdir : bool
+            join paths with rootdir
         parse_kwargs : dict
             keyword arguments passed to yamlconfig.parse_config_file
         """
         self.required_keys = required_keys
         self.squeeze = squeeze
+        if 'join_rootdir' not in parse_kwargs:
+            parse_kwargs['join_rootdir'] = join_rootdir
         self.parse_kwargs = parse_kwargs
 
     def convert(self, value, param, ctx):
