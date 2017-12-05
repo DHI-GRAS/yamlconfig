@@ -188,8 +188,9 @@ def delete_keys_recursive(superset, subset):
 
 def update_recursive_plain(template, other):
     """Wrapper for update_recursive without magic"""
-    update_recursive(template, other,
-            ignore_notintemplate=False, delete_notinsubset=False)
+    update_recursive(
+        template, other,
+        ignore_notintemplate=False, delete_notinsubset=False)
 
 
 def save_to_yaml(

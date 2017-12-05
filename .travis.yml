@@ -4,10 +4,10 @@ python:
   - "3.6"
 before_install:
     pip install -U pip
-install: 
-  - pip install codecov
+install:
+  - pip install pytest codecov
   - pip install -e .[test]
-script: 
-  - coverage run --source=yamlconfig -m py.test -v
-after_success: 
+script:
+  - coverage run --source=yamlconfig -m pytest -v
+after_success:
   - codecov

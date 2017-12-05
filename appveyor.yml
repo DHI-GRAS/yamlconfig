@@ -1,10 +1,10 @@
 version: 1.0.{build}
 before_build:
-- cmd: >-
-    pip install -U pip
-    
-    pip install pytest
+  - cmd: pip install -U pip
+  - cmd: pip install pytest codecov
 build_script:
-- cmd: pip install -e .[test]
+  - cmd: pip install -e .[test]
 test_script:
-- cmd: python -m pytest
+  - cmd: coverage run --source=yamlconfig -m pytest -v
+on_success:
+  - cmd: codecov

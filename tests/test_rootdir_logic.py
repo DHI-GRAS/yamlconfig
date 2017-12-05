@@ -1,4 +1,7 @@
 import os
+import sys
+
+import pytest
 
 from yamlconfig import rootdir_logic
 
@@ -47,3 +50,19 @@ def test_remove_rootdir_from_paths():
     assert removed['joined_dir'].replace('\\', '/') == relative_path
     assert removed['something_else'] == something_else
     assert removed['unjoined_dir'] == unjoined_dir
+
+
+@pytest.mark.skipif(
+    sys.platform != 'win32',
+    reason="only on windows")
+def test_remove_rootdir_from_paths_windows():
+    before = dict(
+        rootdir=r'C:\somedrive\something',
+        absolute_dir=r'E:\otherdrive\something',
+        relative_dir=r'.\something',
+        remove_root_dir=r'C:\somedrive\something\additional')
+    after = before.copy()
+    rootdir_logic.remove_rootdir_from_paths(after)
+    assert after['absolute_dir'] == before['absolute_dir']
+    assert after['relative_dir'] == before['relative_dir']
+    assert after['remove_root_dir'] == 'additional'

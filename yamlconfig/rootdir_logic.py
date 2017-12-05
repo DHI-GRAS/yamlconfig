@@ -93,6 +93,11 @@ def remove_rootdir_from_paths(configdict, regex=default_key_regex, exclude=None)
         if isinstance(configdict[key], _dict_types):
             remove_rootdir_from_paths(configdict[key])
         elif _key_matches(key, regex, exclude) and configdict[key]:
-            relpath = os.path.relpath(configdict[key], rootdir)
+            try:
+                # this can fail if the paths are on different drives
+                # on Windows
+                relpath = os.path.relpath(configdict[key], rootdir)
+            except ValueError:
+                continue
             if not relpath.startswith('.'):
                 configdict[key] = relpath
