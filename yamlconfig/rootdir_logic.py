@@ -56,12 +56,16 @@ def join_paths_with_rootdir(
         exclude = ['rootdir']
     else:
         exclude.append('rootdir')
+
     if regex is None:
         regex = []
+
     rootdir = configdict.get('rootdir', default_rootdir)
     logger.debug('Rootdir is \'%s\'.', rootdir)
+
     if rootdir is None:
         return configdict
+
     for key in configdict:
         if isinstance(configdict[key], _dict_types):
             configdict[key] = join_paths_with_rootdir(
@@ -74,18 +78,24 @@ def join_paths_with_rootdir(
                 continue
 
             if isinstance(val, str):
-                try:
-                    configdict[key] = os.path.abspath(os.path.join(rootdir, val))
-                except (TypeError, ValueError):
-                    pass
+                configdict[key] = _join_maybe(rootdir, val)
                 continue
 
             try:
-                configdict[key] = [os.path.abspath(os.path.join(rootdir, f)) for f in val]
-            except (TypeError, ValueError):
-                pass
+                iter(val)
+            except TypeError:
+                continue
+
+            configdict[key] = [_join_maybe(rootdir, f) for f in val]
 
     return configdict
+
+
+def _join_maybe(root, path):
+    try:
+        return os.path.abspath(os.path.join(root, path))
+    except (TypeError, ValueError):
+        return path
 
 
 def remove_rootdir_from_paths(configdict, regex=default_key_regex, exclude=None):

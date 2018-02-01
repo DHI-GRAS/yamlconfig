@@ -53,14 +53,16 @@ def test_join_path_list_with_rootdir():
         'myfile': [joined_path],
         'myFile': [joined_path] * 20,
         'someDir': [5],
-        'some_dir': [5, 5]
+        'some_dir': [5, 5],
+        'anotherdir': [5, joined_path]
     }
     all_match = {
         'rootdir': rootdir,
         'myfile': [relative_path],
         'myFile': [relative_path] * 20,
         'someDir': [5],
-        'some_dir': [5, 5]
+        'some_dir': [5, 5],
+        'anotherdir': [5, relative_path]
     }
 
     joined = rootdir_logic.join_paths_with_rootdir(all_match.copy())
