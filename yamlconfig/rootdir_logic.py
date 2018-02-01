@@ -94,7 +94,7 @@ def join_paths_with_rootdir(
 def _join_maybe(root, path):
     try:
         return os.path.abspath(os.path.join(root, path))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, AttributeError):
         return path
 
 
