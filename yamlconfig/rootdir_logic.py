@@ -70,15 +70,21 @@ def join_paths_with_rootdir(
                     exclude=exclude)
         elif _key_matches(key, regex, exclude):
             val = configdict[key]
+            if val is None:
+                continue
+
             if isinstance(val, str):
-                val = [val]
-            if val is not None:
                 try:
-                    configdict[key] = _squeeze(
-                        [os.path.abspath(os.path.join(rootdir, f)) for f in val]
-                    )
+                    configdict[key] = os.path.abspath(os.path.join(rootdir, val))
                 except (TypeError, ValueError):
                     pass
+                continue
+
+            try:
+                configdict[key] = [os.path.abspath(os.path.join(rootdir, f)) for f in val]
+            except (TypeError, ValueError):
+                pass
+                
     return configdict
 
 
