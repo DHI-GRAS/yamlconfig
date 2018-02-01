@@ -74,9 +74,7 @@ def join_paths_with_rootdir(
                     exclude=exclude)
         elif _key_matches(key, regex, exclude):
             val = configdict[key]
-            if val is None:
-                continue
-
+    
             if isinstance(val, str):
                 configdict[key] = _join_maybe(rootdir, val)
                 continue
