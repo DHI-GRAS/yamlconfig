@@ -84,14 +84,8 @@ def join_paths_with_rootdir(
                 configdict[key] = [os.path.abspath(os.path.join(rootdir, f)) for f in val]
             except (TypeError, ValueError):
                 pass
-                
+
     return configdict
-
-
-def _squeeze(iterable):
-    if len(iterable) == 1:
-        return iterable[0]
-    return iterable
 
 
 def remove_rootdir_from_paths(configdict, regex=default_key_regex, exclude=None):
