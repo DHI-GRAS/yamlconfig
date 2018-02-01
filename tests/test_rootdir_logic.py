@@ -35,6 +35,28 @@ def test_join_paths_with_rootdir():
         assert joined[key] == expected
 
 
+def test_join_path_list_with_rootdir():
+    rootdir = '/absolute/path'
+    relative_path = 'relative/path'
+    joined_path = os.path.abspath(os.path.join(rootdir, relative_path))
+    expected = {
+        'myfile': [joined_path],
+        'myFile': [joined_path] * 20
+    }
+    all_match = {
+        'rootdir': rootdir,
+        'myfile': [relative_path],
+        'myFile': [relative_path] * 20,
+    }
+
+    joined = rootdir_logic.join_paths_with_rootdir(all_match.copy())
+    for key in joined:
+        print(key)
+        if key == 'rootdir':
+            continue
+        assert joined[key] == expected[key]
+
+
 def test_remove_rootdir_from_paths():
     rootdir = os.path.abspath('/absolute/path')
     relative_path = 'relative/path'
