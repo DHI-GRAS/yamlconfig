@@ -18,21 +18,59 @@ def test_key_matches():
 def test_join_paths_with_rootdir():
     rootdir = '/absolute/path'
     relative_path = 'relative/path'
-    expected = os.path.abspath(os.path.join(rootdir, relative_path))
+    joined_path = os.path.abspath(os.path.join(rootdir, relative_path))
+    expected = {
+        'myfile': joined_path,
+        'myFile': joined_path,
+        'my_file_trails': joined_path,
+        'someDir': joined_path,
+        'some_dir': joined_path,
+        'anotherfile': 5
+    }
     all_match = {
-            'rootdir': rootdir,
-            'myfile': relative_path,
-            'myFile': relative_path,
-            'my_file_trails': relative_path,
-            'someDir': relative_path,
-            'some_dir': relative_path}
+        'rootdir': rootdir,
+        'myfile': relative_path,
+        'myFile': relative_path,
+        'my_file_trails': relative_path,
+        'someDir': relative_path,
+        'some_dir': joined_path,
+        'anotherfile': 5
+    }
 
     joined = rootdir_logic.join_paths_with_rootdir(all_match.copy())
     for key in joined:
         print(key)
         if key == 'rootdir':
             continue
-        assert joined[key] == expected
+        assert joined[key] == expected[key]
+
+
+def test_join_path_list_with_rootdir():
+    rootdir = '/absolute/path'
+    relative_path = 'relative/path'
+    joined_path = os.path.abspath(os.path.join(rootdir, relative_path))
+    expected = {
+        'myfile': [joined_path],
+        'myFile': [joined_path] * 20,
+        'someDir': [5],
+        'some_dir': [5, 5],
+        'anotherdir': [5, joined_path]
+    }
+    all_match = {
+        'rootdir': rootdir,
+        'myfile': [relative_path],
+        'myFile': [relative_path] * 20,
+        'someDir': [5],
+        'some_dir': [5, 5],
+        'anotherdir': [5, relative_path]
+    }
+
+    joined = rootdir_logic.join_paths_with_rootdir(all_match.copy())
+    for key in joined:
+        print(key)
+        if key == 'rootdir':
+            continue
+        assert joined[key] == expected[key]
 
 
 def test_remove_rootdir_from_paths():
